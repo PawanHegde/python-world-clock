@@ -21,15 +21,21 @@ def matching_cities(prefix):
 
 
 def time_at(zone):
-    print(datetime.now(timezone(zone)).time())
+    return datetime.now(timezone(zone)).time()
+
+
+def display_world_clocks(zones):
+    for zone in zones:
+        print("{} ({}): {}".format(zone[0], zone[1], time_at(zone[1])))
 
 
 if __name__ == '__main__':
     initialise_city_trie()
     scheduler = BlockingScheduler()
-    scheduler.add_job(time_at,
+    scheduler.add_job(display_world_clocks,
                       'interval',
                       seconds=0.2,
-                      args=[next(city_trie.itervalues(prefix="del"))[1]],
+                      args=[[('Delhi', 'Asia/Kolkata'),
+                            ('Nowy Dwór Mazowiecki', 'Europe/Warsaw')]],
                       coalesce=True)
     scheduler.start()
