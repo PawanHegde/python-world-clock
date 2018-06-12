@@ -6,7 +6,7 @@ from tinydb import TinyDB, Query
 
 
 def time_at(zone):
-    return datetime.now(timezone(zone)).time()
+    return datetime.now(timezone(zone)).time().strftime("%H:%M:%S")
 
 
 class WorldClock:
@@ -39,12 +39,18 @@ class WorldClock:
             return [(document['locality'], document['zone'])
                     for document in self.db]
 
-    def display_world_clocks(self):
-        print('Localities: {}'.format(self.list_locality_zones()))
+    def display_world_clocks_localities(self):
         for locality_zone in self.list_locality_zones():
-            print('{}\t({}) – \t{}'.format(locality_zone[0],
-                                           locality_zone[1],
-                                           time_at(locality_zone[1])))
+            print('{0:<30}'.format(locality_zone[0]
+                                   + "(" + locality_zone[1] + ")"), end='',
+                  flush=True)
+        print('')
+
+    def display_world_clocks(self):
+        print('', end='\r', flush=False)
+        for locality_zone in self.list_locality_zones():
+            print('{0: <30}'.format(str(time_at(locality_zone[1]))),
+                  end='', flush=True)
 
 
 if __name__ == '__main__':
@@ -53,8 +59,9 @@ if __name__ == '__main__':
     clock.add_locality_zone(('Warsaw', 'Europe/Warsaw'))
     clock.add_locality_zone(('London', 'Europe/London'))
     clock.add_locality_zone(('Delhi', 'Asia/Kolkata'))
+    clock.display_world_clocks_localities()
     scheduler.add_job(clock.display_world_clocks,
                       'interval',
-                      seconds=0.2,
+                      seconds=0.1,
                       coalesce=True)
     scheduler.start()
